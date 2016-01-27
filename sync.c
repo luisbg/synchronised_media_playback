@@ -6,22 +6,32 @@
 
 GstElement *playbin;
 
+static GstClockTime
+get_base_time (guint16 *clock_port)
+{
+  GstClockTime base_time;
+  FILE *fp;
+
+  fp = fopen ("time", "rb");
+  fread (clock_port, sizeof (guint16), 1, fp);
+  fread (&base_time, sizeof (GstClockTime), 1, fp);
+  fclose (fp);
+
+  return base_time;
+}
+
 int main(int argc, char *argv[]) {
   GMainLoop *main_loop;
   GstClock *client_clock, *tmp_clock;
   guint16 clock_port;
   GstClockTime base_time;
-  FILE *fp;
-
-  fp = fopen ("time", "rb");
-  fread (&clock_port, sizeof (guint16), 1, fp);
-  fread (&base_time, sizeof (GstClockTime), 1, fp);
-  fclose (fp);
 
   /* Initialize GStreamer */
   gst_init (&argc, &argv);
+  base_time = get_base_time (&clock_port);
 
   client_clock = gst_net_client_clock_new (NULL, "127.0.0.1", clock_port, 0);
+
   /* Wait 0.5 seconds for the clock to stabilise */
   g_usleep (G_USEC_PER_SEC / 2);
 
