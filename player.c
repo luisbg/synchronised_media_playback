@@ -7,20 +7,21 @@
 GstElement *playbin;
 
 static GstNetTimeProvider *
-create_net_clock (int port)
+create_net_clock (guint16 *port)
 {
   GstClock *clock;
   GstNetTimeProvider *net_time;
 
   clock = gst_system_clock_obtain ();
-  net_time = gst_net_time_provider_new (clock, NULL, port);
+  net_time = gst_net_time_provider_new (clock, NULL, 0);
+  g_object_get (net_time, "port", port, NULL);
   gst_object_unref (clock);
 
   return net_time;
 }
 
 static GstClockTime
-share_base_time (GstNetTimeProvider *prov_clock)
+share_base_time (guint16 clock_port, GstNetTimeProvider *prov_clock)
 {
   FILE *fp;
   GstClock *clock;
@@ -30,6 +31,7 @@ share_base_time (GstNetTimeProvider *prov_clock)
   base_time = gst_clock_get_time (clock);
 
   fp = fopen ("time", "w+b");
+  fwrite (&clock_port, sizeof (guint16), 1, fp);
   fwrite (&base_time, sizeof (GstClockTime), 1, fp);
   fclose (fp);
 
@@ -40,19 +42,18 @@ int main(int argc, char *argv[]) {
   GMainLoop *main_loop;
   GstClock *client_clock, *tmp_clock;
   GstNetTimeProvider *prov_clock;
-  int clock_port = 58243;
+  guint16 clock_port;
   GstClockTime base_time;
 
   /* Initialize GStreamer */
   gst_init (&argc, &argv);
 
-  prov_clock = create_net_clock (clock_port);
+  prov_clock = create_net_clock (&clock_port);
   client_clock = gst_net_client_clock_new (NULL, "127.0.0.1", clock_port, 0);
 
   /* Wait 0.5 seconds for the clock to stabilise */
   g_usleep (G_USEC_PER_SEC / 2);
-
-  base_time = share_base_time (prov_clock);
+  base_time = share_base_time (clock_port, prov_clock);
 
   /* Create the elements */
   playbin = gst_element_factory_make ("playbin", "playbin");
@@ -63,8 +64,6 @@ int main(int argc, char *argv[]) {
   gst_pipeline_use_clock (GST_PIPELINE (playbin), client_clock);
 
   gst_element_set_state (playbin, GST_STATE_PLAYING);
-
-
 
   /* Create a GLib Main Loop and set it to run */
   main_loop = g_main_loop_new (NULL, FALSE);

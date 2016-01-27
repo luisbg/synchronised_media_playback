@@ -9,9 +9,14 @@ GstElement *playbin;
 int main(int argc, char *argv[]) {
   GMainLoop *main_loop;
   GstClock *client_clock, *tmp_clock;
-  int clock_port = 58243;
+  guint16 clock_port;
   GstClockTime base_time;
   FILE *fp;
+
+  fp = fopen ("time", "rb");
+  fread (&clock_port, sizeof (guint16), 1, fp);
+  fread (&base_time, sizeof (GstClockTime), 1, fp);
+  fclose (fp);
 
   /* Initialize GStreamer */
   gst_init (&argc, &argv);
@@ -23,10 +28,6 @@ int main(int argc, char *argv[]) {
   /* Create the elements */
   playbin = gst_element_factory_make ("playbin", "playbin");
   g_object_set (playbin, "uri", "file:///home/luisbg/samples/big_buck_bunny_1080p_h264.mov", NULL);
-
-  fp = fopen ("time", "rb");
-  fread (&base_time, sizeof (GstClockTime), 1, fp);
-  fclose (fp);
 
   gst_element_set_start_time (playbin, GST_CLOCK_TIME_NONE);
   gst_element_set_base_time (playbin, base_time);
