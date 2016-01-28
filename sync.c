@@ -41,9 +41,10 @@ int main(int argc, char *argv[]) {
   playbin = gst_element_factory_make ("playbin", "playbin");
   g_object_set (playbin, "uri", "file:///home/luisbg/samples/big_buck_bunny_1080p_h264.mov", NULL);
 
-  gst_element_set_start_time (playbin, GST_CLOCK_TIME_NONE);
-  gst_element_set_base_time (playbin, base_time);
   gst_pipeline_use_clock (GST_PIPELINE (playbin), client_clock);
+  gst_element_set_base_time (playbin, base_time);
+  gst_element_set_start_time (playbin, GST_CLOCK_TIME_NONE);
+  gst_pipeline_set_latency (GST_PIPELINE (playbin), GST_SECOND / 2);
 
   gst_element_set_state (playbin, GST_STATE_PLAYING);
 
