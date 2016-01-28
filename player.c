@@ -30,7 +30,9 @@ share_base_time (guint16 clock_port, GstNetTimeProvider *prov_clock)
   g_object_get (prov_clock, "clock", &clock, NULL);
   base_time = gst_clock_get_time (clock);
 
-  fp = fopen ("time", "w+b");
+  fp = fopen ("/tmp/shared_time", "w+b");
+  if (!fp)
+    g_print ("problem writing to shared_time file");
   fwrite (&clock_port, sizeof (guint16), 1, fp);
   fwrite (&base_time, sizeof (GstClockTime), 1, fp);
   fclose (fp);

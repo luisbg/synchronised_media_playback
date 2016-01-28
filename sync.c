@@ -12,7 +12,9 @@ get_base_time (guint16 *clock_port)
   GstClockTime base_time;
   FILE *fp;
 
-  fp = fopen ("time", "rb");
+  fp = fopen ("/tmp/shared_time", "rb");
+  if (!fp)
+    g_print ("problem reading shared_time file");
   fread (clock_port, sizeof (guint16), 1, fp);
   fread (&base_time, sizeof (GstClockTime), 1, fp);
   fclose (fp);
