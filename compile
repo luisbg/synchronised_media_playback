@@ -1,2 +1,0 @@
-gcc `pkg-config --cflags --libs gstreamer-1.0 gstreamer-net-1.0` -o leader leader.c
-gcc `pkg-config --cflags --libs gstreamer-1.0 gstreamer-net-1.0` -o follower follower.c
