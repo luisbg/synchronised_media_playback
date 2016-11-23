@@ -54,7 +54,7 @@ share_base_time (guint16 clock_port, GstNetTimeProvider *prov_clock)
 
 int main(int argc, char *argv[]) {
   GMainLoop *main_loop;
-  GstClock *client_clock, *tmp_clock;
+  GstClock *client_clock;
   GstNetTimeProvider *prov_clock;
   guint16 clock_port;
   GstClockTime base_time;

@@ -36,7 +36,7 @@ get_base_time (guint16 *clock_port)
 
 int main(int argc, char *argv[]) {
   GMainLoop *main_loop;
-  GstClock *client_clock, *tmp_clock;
+  GstClock *client_clock;
   guint16 clock_port;
   GstClockTime base_time;
 
